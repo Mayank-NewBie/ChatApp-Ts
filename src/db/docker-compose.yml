@@ -1,19 +1,20 @@
 services:
-db:
-image: postgres:latest
-restart: always
-volumes:
-- ./data/db:/var/lib/postgresql/data
-ports:
-- 5432:5432 #default port
+  db:
+    image: postgres:17
+    restart: always
 
-environment:
-- POSTGRES_DB=ChatAppDb
-- POSTGRES_USER=ChatApp
-- POSTGRES_PASSWORD=ChatApp@Db
+    volumes:
+     - ./data/db:/var/lib/postgresql/data
 
-adminer:
- image: adminer
- restart: always
- ports: 
- - 8080:8080 #default port
+    ports:
+    - 5432:5432 #default port
+
+    environment:
+    - POSTGRES_DB=ChatAppDb
+    - POSTGRES_USER=ChatApp
+    - POSTGRES_PASSWORD=ChatApp@Db
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+    - 8080:8080 #default port
