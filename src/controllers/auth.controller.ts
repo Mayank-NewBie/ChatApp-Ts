@@ -30,12 +30,41 @@ export const loginUser = async (req: Request, res: Response) => {
     const result = await pool.query(queryText, value);
     const hashedpassword=result.rows[0].password
     const passwordValue=await bcrypt.compare(password,hashedpassword);
-    console.log(passwordValue)
     if(!passwordValue) return res.status(404).json({message:"Authorized User"});
-    
-    console.log(result)
 
-  } catch (err) {
-    console.log("error", err);
+    const payload={
+      id:result.rows[0]._id,
+      username:username
+    }
+    
+    const token=jwt.sign(payload,process.env.JWT_SECRET as string,)
+
+    res.cookie("token",token,{
+      httpOnly:true,
+      secure:false,
+      sameSite:'lax',
+      path:'/'
+    })
+    
+    res.status(201).json({
+      message:'Successfully Logged In',
+    })
+
+  } catch (err:unknown) {
+    if(err instanceof Error){
+      throw new Error("Some Went Wrong",{cause:err})
+    }
   }
 };
+
+export const logoutUser=async(req:Request,res:Response)=>{
+  res.clearCookie('token',{
+    httpOnly:true,
+    secure:true,
+    sameSite:'strict'
+  })
+
+  res.status(200).json({
+    message:'user logged out'
+  })
+}
