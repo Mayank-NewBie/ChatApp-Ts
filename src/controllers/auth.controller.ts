@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import pool from "../db/connection";
 import bcrypt from "bcrypt";
-import jwt from 'jsonwebtoken'
+import jwt from "jsonwebtoken";
 
 export const registerUser = async (req: Request, res: Response) => {
   const { username, password } = req.body;
@@ -28,43 +28,43 @@ export const loginUser = async (req: Request, res: Response) => {
     const value = [username];
 
     const result = await pool.query(queryText, value);
-    const hashedpassword=result.rows[0].password
-    const passwordValue=await bcrypt.compare(password,hashedpassword);
-    if(!passwordValue) return res.status(404).json({message:"Authorized User"});
+    const hashedpassword = result.rows[0].password;
+    const passwordValue = await bcrypt.compare(password, hashedpassword);
+    if (!passwordValue)
+      return res.status(404).json({ message: "Authorized User" });
 
-    const payload={
-      id:result.rows[0]._id,
-      username:username
-    }
-    
-    const token=jwt.sign(payload,process.env.JWT_SECRET as string,)
+    const payload = {
+      id: result.rows[0]._id,
+      username: username,
+    };
 
-    res.cookie("token",token,{
-      httpOnly:true,
-      secure:false,
-      sameSite:'lax',
-      path:'/'
-    })
-    
+    const token = jwt.sign(payload, process.env.JWT_SECRET as string);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      path: "/",
+    });
+
     res.status(201).json({
-      message:'Successfully Logged In',
-    })
-
-  } catch (err:unknown) {
-    if(err instanceof Error){
-      throw new Error("Some Went Wrong",{cause:err})
+      message: "Successfully Logged In",
+    });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      throw new Error("Some Went Wrong", { cause: err });
     }
   }
 };
 
-export const logoutUser=async(req:Request,res:Response)=>{
-  res.clearCookie('token',{
-    httpOnly:true,
-    secure:true,
-    sameSite:'strict'
-  })
+export const logoutUser = async (req: Request, res: Response) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+  });
 
   res.status(200).json({
-    message:'user logged out'
-  })
-}
+    message: "user logged out",
+  });
+};
